@@ -29,6 +29,11 @@ obj-$(CONFIG_MXC_CAMERA_OV5640_MIPI) += ov5640_camera_mipi_int.o
 ov5640_camera_mipi_v2-objs := ov5640_mipi_v2.o
 obj-$(CONFIG_MXC_CAMERA_OV5640_MIPI_V2) += ov5640_camera_mipi_v2.o
 
+# Used for MYIR
+myir_ov5640_camera_mipi-objs := myir_ov5640_mipi.o
+obj-$(CONFIG_MYIR_CAMERA_OV5640) += myir_ov5640_camera_mipi.o
+
+
 ov5647_camera_mipi-objs := ov5647_mipi.o
 obj-$(CONFIG_MXC_CAMERA_OV5647_MIPI) += ov5647_camera_mipi.o
 

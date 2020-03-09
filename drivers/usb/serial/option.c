@@ -235,6 +235,7 @@ static void option_instat_callback(struct urb *urb);
 /* These Quectel products use Qualcomm's vendor ID */
 #define QUECTEL_PRODUCT_UC20			0x9003
 #define QUECTEL_PRODUCT_UC15			0x9090
+#define QUECTEL_PRODUCT_EC20			0x9215
 /* These u-blox products use Qualcomm's vendor ID */
 #define UBLOX_PRODUCT_R410M			0x90b2
 /* These Yuga products use Qualcomm's vendor ID */
@@ -1071,6 +1072,7 @@ static const struct usb_device_id option_ids[] = {
 	  .driver_info = NCTRL(0) | NCTRL(1) | NCTRL(2) | NCTRL(3) | RSVD(4) },
 	/* Quectel products using Qualcomm vendor ID */
 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, QUECTEL_PRODUCT_UC15)},
+	{ USB_DEVICE(QUALCOMM_VENDOR_ID, QUECTEL_PRODUCT_EC20)},
 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, QUECTEL_PRODUCT_UC20),
 	  .driver_info = RSVD(4) },
 	/* Yuga products use Qualcomm vendor ID */
@@ -2003,6 +2005,9 @@ static struct usb_serial_driver option_1port_device = {
 	.suspend           = usb_wwan_suspend,
 	.resume            = usb_wwan_resume,
 #endif
+#if 1 //Added by Quectel
+	.reset_resume = usb_wwan_resume,
+#endif
 };
 
 static struct usb_serial_driver * const serial_drivers[] = {
@@ -2036,7 +2041,25 @@ static int option_probe(struct usb_serial *serial,
 	 */
 	if (device_flags & NUMEP2 && iface_desc->bNumEndpoints != 2)
 		return -ENODEV;
-
+#if 1 //Added by Quectel
+	//Quectel UC20's interface 4 can be used as USB Network device
+	if (serial->dev->descriptor.idVendor == cpu_to_le16(QUALCOMM_VENDOR_ID) &&
+		serial->dev->descriptor.idProduct == cpu_to_le16(QUECTEL_PRODUCT_UC20)
+		&& serial->interface->cur_altsetting->desc.bInterfaceNumber >= 4
+	)
+		return -ENODEV;
+	//Quectel EC20's interface 4 can be used as USB Network device
+	if (serial->dev->descriptor.idVendor == cpu_to_le16(QUALCOMM_VENDOR_ID) &&
+		serial->dev->descriptor.idProduct == cpu_to_le16(QUECTEL_PRODUCT_EC20)
+		&& serial->interface->cur_altsetting->desc.bInterfaceNumber >= 4
+	)
+		return -ENODEV;
+//Quectel EC21&EC25&EC20 R2.0's interface 4 can be used as USB Network device
+	if (serial->dev->descriptor.idVendor == cpu_to_le16(QUECTEL_VENDOR_ID)
+		&& serial->interface->cur_altsetting->desc.bInterfaceNumber >= 4
+	)
+		return -ENODEV;
+#endif
 	/* Store the device flags so we can use them during attach. */
 	usb_set_serial_data(serial, (void *)device_flags);
 

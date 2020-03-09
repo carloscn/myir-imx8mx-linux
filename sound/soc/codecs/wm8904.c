@@ -312,7 +312,7 @@ static bool wm8904_readable_register(struct device *dev, unsigned int reg)
 	case WM8904_FLL_NCO_TEST_1:
 		return true;
 	default:
-		return false;
+		return true;
 	}
 }
 
@@ -790,7 +790,7 @@ static int out_pga_event(struct snd_soc_dapm_widget *w,
 			snd_soc_component_write(component, WM8904_DC_SERVO_1,
 				dcs_mask << WM8904_DCS_TRIG_STARTUP_0_SHIFT);
 
-			timeout = 500;
+			timeout = 20;
 		}
 
 		/* Wait for DC servo to complete */
@@ -1838,9 +1838,17 @@ static int wm8904_set_bias_level(struct snd_soc_component *component,
 
 	switch (level) {
 	case SND_SOC_BIAS_ON:
-		ret = clk_prepare_enable(wm8904->mclk);
-		if (ret)
-			return ret;
+		clk_prepare_enable(wm8904->mclk);
+//        snd_soc_update_bits(codec, WM8904_ADC_DIGITAL_VOLUME_RIGHT, WM8904_ADCR_VOL_MASK, WM8904_ADCR_VOL_MASK);
+//        snd_soc_update_bits(codec, WM8904_ADC_DIGITAL_VOLUME_LEFT, WM8904_ADCL_VOL_MASK, WM8904_ADCL_VOL_MASK);
+		snd_soc_update_bits(codec, WM8904_ANALOGUE_LEFT_INPUT_0, WM8904_LINMUTE_MASK,!WM8904_LINMUTE_WIDTH);
+		snd_soc_update_bits(codec, WM8904_ANALOGUE_RIGHT_INPUT_0, WM8904_RINMUTE_MASK,!WM8904_LINMUTE_WIDTH);
+
+        snd_soc_update_bits(codec, WM8904_ANALOGUE_LEFT_INPUT_0, WM8904_LIN_VOL_MASK,0x0f);
+        snd_soc_update_bits(codec, WM8904_ANALOGUE_RIGHT_INPUT_0, WM8904_RIN_VOL_MASK, 0x0f);
+		/* iput pag configration ,set mode?��odifferential Line Mode  */
+		snd_soc_update_bits(codec, WM8904_ANALOGUE_LEFT_INPUT_1, WM8904_L_MODE_MASK, 0x01);
+		snd_soc_update_bits(codec, WM8904_ANALOGUE_RIGHT_INPUT_1, WM8904_R_MODE_MASK, 0x01);
 		break;
 
 	case SND_SOC_BIAS_PREPARE:
@@ -2214,6 +2222,10 @@ static int wm8904_i2c_probe(struct i2c_client *i2c,
 			   WM8904_ADC_VU, WM8904_ADC_VU);
 	regmap_update_bits(wm8904->regmap, WM8904_ADC_DIGITAL_VOLUME_RIGHT,
 			   WM8904_ADC_VU, WM8904_ADC_VU);
+	regmap_update_bits(wm8904->regmap, WM8904_POWER_MANAGEMENT_6,
+			   WM8904_ADCL_ENA, WM8904_ADCL_ENA);
+	regmap_update_bits(wm8904->regmap, WM8904_POWER_MANAGEMENT_6,
+			   WM8904_ADCR_ENA, WM8904_ADCR_ENA);	
 	regmap_update_bits(wm8904->regmap, WM8904_DAC_DIGITAL_VOLUME_LEFT,
 			   WM8904_DAC_VU, WM8904_DAC_VU);
 	regmap_update_bits(wm8904->regmap, WM8904_DAC_DIGITAL_VOLUME_RIGHT,
