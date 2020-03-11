@@ -47,6 +47,7 @@
 #include <linux/dma-mapping.h>
 
 #include "usb.h"
+#include <linux/gpio.h>
 
 
 const char *usbcore_name = "usbcore";
@@ -1186,6 +1187,19 @@ static void usb_debugfs_cleanup(void)
  */
 static int __init usb_init(void)
 {
+	{
+		int ret = -1;
+
+		//LTE_PWR_EN
+		ret = gpio_direction_output(135,0);
+		msleep(100);
+//		printk("ccym set gpio 5_7 ret [%d]\n",ret);
+		ret = gpio_direction_output(135,1);
+//		printk("ccym set gpio 5_7(135) to 1 ret [%d]\n",ret);
+
+
+
+	}
 	int retval;
 	if (usb_disabled()) {
 		pr_info("%s: USB support disabled\n", usbcore_name);
