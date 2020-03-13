@@ -1046,8 +1046,15 @@ static ssize_t fsl_qspi_read(struct spi_nor *nor, loff_t from,
 		cmd, q->ahb_addr + q->chip_base_addr + from - q->memmap_offs,
 		len);
 
-	memcpy(buf, q->ahb_addr + q->chip_base_addr + from
-	       - q->memmap_offs, len);
+	/* need fixed winbond w25q256 read/write two byte offset */
+	if (cmd == 0xed)
+		memcpy(buf, q->ahb_addr + q->chip_base_addr + from
+	       	- q->memmap_offs +2 , len);
+	else{
+		memcpy(buf, q->ahb_addr + q->chip_base_addr + from
+	       	- q->memmap_offs , len);
+	}
+
 
 	return len;
 }
