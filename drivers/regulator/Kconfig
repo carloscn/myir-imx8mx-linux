@@ -193,7 +193,7 @@ config REGULATOR_BD718XX
 
 config REGULATOR_BD71837
 	tristate "ROHM BD71837 Power Regulator"
-	depends on MFD_ROHM_BD71837
+	depends on MFD_BD71837
 	help
 	  This driver supports voltage regulators on ROHM BD71837 PMIC.
 	  This will enable support for the software controllable buck
