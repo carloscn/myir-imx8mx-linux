@@ -58,7 +58,7 @@
 	as_bridge;
 	sync-pol = <1>;
 
-	pwr-delay = <10>;
+	pwr-delay = <20>;
 	port@1 {
 		mipi_dsi_in: endpoint {
 			remote-endpoint = <&lcdif_mipi_dsi>;

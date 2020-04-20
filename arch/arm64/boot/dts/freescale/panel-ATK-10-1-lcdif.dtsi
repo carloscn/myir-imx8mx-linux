@@ -31,11 +31,11 @@
 		stby-gpio = <&gpio3 24 GPIO_ACTIVE_HIGH>;
 		reset-gpio = <&gpio4 29 GPIO_ACTIVE_HIGH>;
 		dsi-lanes = <4>;
-		video-mode = <1>;
+		video-mode = <2>;
 		panel-width-mm = <230>;
 		panel-height-mm = <150>;
 		
-		toshiba,debug = <1>;
+		toshiba,debug = <0>;
 		toshiba,ppi_tx_rx_ta =         <0x00030005>;
 		toshiba,ppi_lptxtimecnt =      <0x00000003>;
 		toshiba,ppi_d0s_clrsipocount = <0x00000004>;
@@ -47,7 +47,7 @@
 		toshiba,ppi_sartppi =          <0x00000001>; 
 		toshiba,dsi_sartppi =          <0x00000001>;
 		
-		toshiba,vpctrl =               <0x03F00100>; 
+		toshiba,vpctrl =               <0x03200100>; 
 		toshiba,htim1 =                <0x003c000a>;
 		toshiba,htim2 =                <0x005a0500>;
 		toshiba,vtim1 =                <0x000A0003>;
