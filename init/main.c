@@ -527,7 +527,14 @@ static void __init mm_init(void)
 	/* Should be run after espfix64 is set up. */
 	pti_init();
 }
-
+static void __init setup_slient_log(char *command_line)
+{
+	if( !command_line )
+		return ;
+	if (strstr(command_line , "quiet")){
+		console_silent();
+	}
+}
 asmlinkage __visible void __init start_kernel(void)
 {
 	char *command_line;
@@ -559,6 +566,7 @@ asmlinkage __visible void __init start_kernel(void)
 	boot_init_stack_canary();
 	mm_init_cpumask(&init_mm);
 	setup_command_line(command_line);
+	setup_slient_log(command_line);
 	setup_nr_cpu_ids();
 	setup_per_cpu_areas();
 	smp_prepare_boot_cpu();	/* arch-specific boot-cpu hooks */
