@@ -248,6 +248,7 @@ static void option_instat_callback(struct urb *urb);
 #define QUECTEL_PRODUCT_BG96			0x0296
 #define QUECTEL_PRODUCT_EP06			0x0306
 #define QUECTEL_PRODUCT_EM12			0x0512
+#define QUECTEL_PRODUCT_RM500Q          0x0800
 
 #define CMOTECH_VENDOR_ID			0x16d8
 #define CMOTECH_PRODUCT_6001			0x6001
@@ -1082,6 +1083,7 @@ static const struct usb_device_id option_ids[] = {
 	{ USB_DEVICE(QUALCOMM_VENDOR_ID, UBLOX_PRODUCT_R410M),
 	  .driver_info = RSVD(1) | RSVD(3) },
 	/* Quectel products using Quectel vendor ID */
+	{ USB_DEVICE(QUECTEL_VENDOR_ID,QUECTEL_PRODUCT_RM500Q)},
 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC21),
 	  .driver_info = RSVD(4) },
 	{ USB_DEVICE(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC25),
@@ -2055,10 +2057,16 @@ static int option_probe(struct usb_serial *serial,
 	)
 		return -ENODEV;
 //Quectel EC21&EC25&EC20 R2.0's interface 4 can be used as USB Network device
-	if (serial->dev->descriptor.idVendor == cpu_to_le16(QUECTEL_VENDOR_ID)
-		&& serial->interface->cur_altsetting->desc.bInterfaceNumber >= 4
-	)
-		return -ENODEV;
+	if (serial->dev->descriptor.idVendor == cpu_to_le16(QUECTEL_VENDOR_ID)){
+	               //some interfaces can be used as USB Network device (ecm, rndis, mbim)                
+		if (serial->interface->cur_altsetting->desc.bInterfaceClass != 0xFF) {                        
+			return -ENODEV;                
+		}                
+		//interface 4 can be used as USB Network device (qmi)                
+		else if (serial->interface->cur_altsetting->desc.bInterfaceNumber >= 4) {
+			return -ENODEV;                
+		} 
+	}
 #endif
 	/* Store the device flags so we can use them during attach. */
 	usb_set_serial_data(serial, (void *)device_flags);
