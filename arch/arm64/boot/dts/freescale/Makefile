@@ -126,7 +126,9 @@ dtb-$(CONFIG_ARCH_FSL_IMX8MQ) += fsl-imx8mq-ddr3l-arm2.dtb \
 				 myb-fsl-imx8mq-evk-lcdif-tc358775-7.dtb \
 				 myb-fsl-imx8mq-evk-dual-tc358775-7.dtb \
 				 myb-fsl-imx8mq-evk-lcdif-tc358775-19.dtb \
-				 myb-fsl-imx8mq-evk-dual-tc358775-19.dtb 
+				 myb-fsl-imx8mq-evk-dual-tc358775-19.dtb \
+				 myb-fsl-imx8mq-evk-lcdif-lt8912.dtb \
+				 myb-fsl-imx8mq-evk-dual-lt8912.dtb
 dtb-$(CONFIG_ARCH_FSL_IMX8MM) += fsl-imx8mm-evk.dtb \
 				 fsl-imx8mm-evk-drm.dtb \
 				 fsl-imx8mm-evk-ak4497.dtb \
