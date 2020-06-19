@@ -73,7 +73,7 @@ static int jdi_panel_init(struct jdi_panel *jdi)
 	if (ret < 0)
 		return ret;
 
-	usleep_range(10000, 20000);
+	msleep(20);
 
 	ret = mipi_dsi_dcs_set_pixel_format(dsi, MIPI_DCS_PIXEL_FMT_24BIT << 4);
 	if (ret < 0) {
@@ -111,6 +111,12 @@ static int jdi_panel_init(struct jdi_panel *jdi)
 				 (u8[]){ 0x00 }, 1);
 	if (ret < 0) {
 		dev_err(dev, "failed to set cabc off: %d\n", ret);
+		return ret;
+	}
+	/* Set display brightness */
+	ret = mipi_dsi_dcs_set_display_brightness(dsi, jdi->backlight->props.brightness);
+	if (ret < 0) {
+		dev_err(dev, "Failed to set display brightness (%d)\n",ret);
 		return ret;
 	}
 
@@ -243,13 +249,31 @@ static int jdi_panel_prepare(struct drm_panel *panel)
 	msleep(20);
 
 	gpiod_set_value(jdi->dcdc_en_gpio, 1);
-	usleep_range(10, 20);
-
+	msleep(20);
 	gpiod_set_value(jdi->reset_gpio, 0);
-	usleep_range(10, 20);
+	msleep(20);
 
 	gpiod_set_value(jdi->enable_gpio, 1);
-	usleep_range(10, 20);
+	msleep(20);
+
+
+	jdi->prepared = true;
+
+	return 0;
+
+
+}
+
+static int jdi_panel_enable(struct drm_panel *panel)
+{
+	struct jdi_panel *jdi = to_jdi_panel(panel);
+	struct device *dev = &jdi->dsi->dev;
+	int ret;
+
+
+	if (jdi->enabled)
+		return 0;
+
 
 	ret = jdi_panel_init(jdi);
 	if (ret < 0) {
@@ -263,7 +287,11 @@ static int jdi_panel_prepare(struct drm_panel *panel)
 		goto poweroff;
 	}
 
-	jdi->prepared = true;
+
+	backlight_enable(jdi->backlight);
+
+	jdi->enabled = true;
+
 
 	return 0;
 
@@ -279,24 +307,12 @@ poweroff:
 	gpiod_set_value(jdi->dcdc_en_gpio, 0);
 
 	return ret;
-}
 
-static int jdi_panel_enable(struct drm_panel *panel)
-{
-	struct jdi_panel *jdi = to_jdi_panel(panel);
-
-	if (jdi->enabled)
-		return 0;
-
-	backlight_enable(jdi->backlight);
-
-	jdi->enabled = true;
-
-	return 0;
+	
 }
 
 static const struct drm_display_mode default_mode = {
-		.clock = 155493,
+		.clock = 155000,
 		.hdisplay = 1200,
 		.hsync_start = 1200 + 48,
 		.hsync_end = 1200 + 48 + 32,
@@ -339,13 +355,13 @@ static int dsi_dcs_bl_get_brightness(struct backlight_device *bl)
 	int ret;
 	u16 brightness = bl->props.brightness;
 
-	dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
+//	dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
 
 	ret = mipi_dsi_dcs_get_display_brightness(dsi, &brightness);
 	if (ret < 0)
 		return ret;
 
-	dsi->mode_flags |= MIPI_DSI_MODE_LPM;
+//	dsi->mode_flags |= MIPI_DSI_MODE_LPM;
 
 	return brightness & 0xff;
 }
@@ -355,13 +371,15 @@ static int dsi_dcs_bl_update_status(struct backlight_device *bl)
 	struct mipi_dsi_device *dsi = bl_get_data(bl);
 	int ret;
 
-	dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
+//	dsi->mode_flags &= ~MIPI_DSI_MODE_LPM;
+	
+	dev_err(&dsi->dev, "[%s] brightness[%d] \n", __FUNCTION__,bl->props.brightness);
 
 	ret = mipi_dsi_dcs_set_display_brightness(dsi, bl->props.brightness);
 	if (ret < 0)
 		return ret;
 
-	dsi->mode_flags |= MIPI_DSI_MODE_LPM;
+//	dsi->mode_flags |= MIPI_DSI_MODE_LPM;
 
 	return 0;
 }
