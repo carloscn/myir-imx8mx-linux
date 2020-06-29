@@ -1046,14 +1046,9 @@ static ssize_t fsl_qspi_read(struct spi_nor *nor, loff_t from,
 		cmd, q->ahb_addr + q->chip_base_addr + from - q->memmap_offs,
 		len);
 
-	/* need fixed winbond w25q256 read/write two byte offset */
-	if (cmd == 0xed)
-		memcpy(buf, q->ahb_addr + q->chip_base_addr + from
-	       	- q->memmap_offs +2 , len);
-	else{
-		memcpy(buf, q->ahb_addr + q->chip_base_addr + from
-	       	- q->memmap_offs , len);
-	}
+	memcpy(buf, q->ahb_addr + q->chip_base_addr + from
+		- q->memmap_offs , len);
+
 
 
 	return len;
@@ -1109,8 +1104,8 @@ static void fsl_qspi_unprep(struct spi_nor *nor, enum spi_nor_ops ops)
 static int fsl_qspi_probe(struct platform_device *pdev)
 {
 	const struct spi_nor_hwcaps hwcaps = {
-		.mask = SNOR_HWCAPS_READ_1_1_4 |
-			SNOR_HWCAPS_READ_1_4_4_DTR |
+		.mask = SNOR_HWCAPS_READ |
+			SNOR_HWCAPS_READ_FAST |
 			SNOR_HWCAPS_PP,
 	};
 	struct device_node *np = pdev->dev.of_node;
