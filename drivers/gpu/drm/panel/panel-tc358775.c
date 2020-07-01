@@ -419,6 +419,7 @@ static int tc358775_configure(struct tc358775_panel *tc, struct drm_panel *panel
 	//	u32 idreg, pclksel = 0, pclkdiv = 0;
 	//	u32 lvis = 1, lvfs = 0, lvnd = 6, vsdelay = 5, lv_prbs_on = 4,dual_link = 0,debug = 0;
 	u32 debug = 0;
+	u32 set_color_key = 1;
 	//u32 ppi_tx_rx_ta,ppi_lptxtimecnt,ppi_d0s_clrsipocount,ppi_d1s_clrsipocount,ppi_d2s_clrsipocount,ppi_d3s_clrsipocount;
 	u8 chipid, revid;
 	int ret=0;
@@ -509,14 +510,17 @@ static int tc358775_configure(struct tc358775_panel *tc, struct drm_panel *panel
 	regmap_write(tc->regmap, SYSRST, tc->tc35775_cfg.sysrst);
 
 	/* LVDS-TX Mux Input Select Control */
-	regmap_write(tc->regmap, LVMX0003, tc->tc35775_cfg.lvmx0003);
-	regmap_write(tc->regmap, LVMX0407, tc->tc35775_cfg.lvmx0407);
-	regmap_write(tc->regmap, LVMX0811, tc->tc35775_cfg.lvmx0811);
-	regmap_write(tc->regmap, LVMX1215, tc->tc35775_cfg.lvmx1215);
-	regmap_write(tc->regmap, LVMX1619, tc->tc35775_cfg.lvmx1619);
-	regmap_write(tc->regmap, LVMX2023, tc->tc35775_cfg.lvmx2023);
-	regmap_write(tc->regmap, LVMX2427, tc->tc35775_cfg.lvmx2427);
-
+	of_property_read_u32(tc->dev->of_node, "toshiba,set_color_key", &set_color_key);
+	if (set_color_key)
+	{
+		regmap_write(tc->regmap, LVMX0003, tc->tc35775_cfg.lvmx0003);
+		regmap_write(tc->regmap, LVMX0407, tc->tc35775_cfg.lvmx0407);
+		regmap_write(tc->regmap, LVMX0811, tc->tc35775_cfg.lvmx0811);
+		regmap_write(tc->regmap, LVMX1215, tc->tc35775_cfg.lvmx1215);
+		regmap_write(tc->regmap, LVMX1619, tc->tc35775_cfg.lvmx1619);
+		regmap_write(tc->regmap, LVMX2023, tc->tc35775_cfg.lvmx2023);
+		regmap_write(tc->regmap, LVMX2427, tc->tc35775_cfg.lvmx2427);
+	}
 	regmap_write(tc->regmap, LVCFG, tc->tc35775_cfg.lvcfg);
 #if 0
 	/* tc3587755 base parameter */
